@@ -14,22 +14,39 @@ for i in range(0,samples):
 for i in range(0,samples):
 	ret = os.system("tesseract eng.counter.exp%s.png eng.counter.exp%i nobatch box.train.stderr" % (i,i))
 	if ret:
-		raise Exception
+		raise Exception(ret)
 
 
 
 cmd = "unicharset_extractor " 
-cmd2 = "mftraining -F font_properties -U unicharset -O eng.unicharset "
+tr_files = []
 for i in range(0,samples):
 	cmd += "eng.counter.exp%s.box " % i
-	cmd2 += "eng.counter.exp%s.tr " % i
+	tr_files.append("eng.counter.exp%s.tr " % i)
 ret = os.system(cmd)
 if ret:
-	raise Exception
-print cmd2
-ret = os.system(cmd2)
+	raise Exception(ret)
+
+cmd = "copy /b %s eng.counter.exp.tr" % "+".join(tr_files)
+ret = os.system(cmd)
 if ret:
-	raise Exception
+	raise Exception(ret)
+
+cmd = "mftraining -F font_properties -U unicharset -O eng.unicharset eng.counter.exp.tr"
+ret = os.system(cmd)
+if ret:
+	raise Exception(ret)
+
+
+cmd = "cntraining eng.counter.exp.tr"
+ret = os.system(cmd)
+if ret:
+	raise Exception(ret)
+
+cmd = "cntraining eng.counter.exp.tr"
+ret = os.system(cmd)
+if ret:
+	raise Exception(ret)
 
 
 
@@ -43,10 +60,8 @@ cntraining eng.counter.exp0.tr
 combine_tessdata eng.
 
 tesseract x.png output -l eng
-
-
-
 """
+
 ret = os.system("tesseract test.png output -l eng")
 if ret:
 	raise Exception
